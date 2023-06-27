@@ -1,6 +1,6 @@
 ## Simpson's LLM on XPUs
 
-Welcome to the 'Simpson's LLM XPU' repository where we finetune a Language Model (LLM) on Intel discrete GPUs to generate dialogues based on the 'Simpsons' dataset.
+Welcome to the 'Simpson's LLM XPU' repository where we finetune a Language Model (LLM) on Intel discrete GPUs (Intel® Data Center GPU Max 1550) to generate dialogues based on the 'Simpsons' dataset.
 
 <img src=https://github.com/rahulunair/simpsons_llm_xpu/assets/786476/9b4f49a2-ead8-4d7b-b79f-d8b98cd75eeb width="30%">
 
@@ -33,7 +33,7 @@ source $oneccl_path/env/setvars.sh
 Then, execute the following command to initiate the finetuning process across multiple XPUs:
 
 ```bash
-mpirun -n 4 python finetune.py    # uses 4 intel dGPUs
+mpirun -n 4 python finetune.py    # uses 4 Intel Data Center GPU Max 1550
 ```
 ![image](https://github.com/rahulunair/simpsons_llm_xpu/assets/786476/93574ca5-3077-4807-99ce-724afd481885)
 
