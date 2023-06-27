@@ -2,7 +2,7 @@
 
 Finetune an LLM on intel discrete GPUs to generate dialogues based on the simpsons dataset
 
-This is a implementation of the awesome work Replicate done, but for Intel dGPUS: https://replicate.com/blog/fine-tune-llama-to-speak-like-homer-simpson
+This is a implementation of the awesome work Replicate [did](https://replicate.com/blog/fine-tune-llama-to-speak-like-homer-simpson), but for Intel dGPUS: 
 
 #### How to use?
 
