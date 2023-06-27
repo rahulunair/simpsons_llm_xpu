@@ -78,7 +78,6 @@ def prompter(data):
     {data["instruction"]}\n
     \n ### Response:
     {data["input"]}: {data["output"]}"""
-    print(prompt)
     return prompt
 
 
