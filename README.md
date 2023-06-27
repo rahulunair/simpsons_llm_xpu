@@ -47,10 +47,16 @@ mpirun -n 4 python finetune.py    # uses 4 Intel Data Center GPU Max 1550
 ```
 ![image](https://github.com/rahulunair/simpsons_llm_xpu/assets/786476/93574ca5-3077-4807-99ce-724afd481885)
 
-To debug oneccl backend, use this env variable:
+To debug oneccl backend, use this env variable before executing `mpirun`:
 
 ```bash
 export CCL_LOG_LEVEL=debug
+```
+
+I have also provided a small standalone program in the `utils` directory to check if your setup for distributed communication works correctly. To run it, use:
+
+```bash
+mpirun -n 2 utils/oneccl_test.py  # usig 2 processes.
 ```
 
 ### Post Finetuning:
