@@ -21,7 +21,7 @@ python finetune.py
 
 #### For a Multi-XPU Configuration (Multiple dGPUs):
 
-As we are using HuggingFace Trainer object, we don't have to change the code in anyway, but execute the code using `mpi`.
+As we are using HuggingFace Trainer* object, we don't have to change the code in anyway, but execute the code using `mpi`.
 
 First, set up the oneCCL environment variables by executing:
 
@@ -48,6 +48,7 @@ python inference.py --infer
 
 To get a better understanding of the Low-rank Option for finetuning Transformers (LORΛ) and the finetuning approach, I have added  a literate version of the finetune.py file as a Jupyter notebook - literate_finetune.ipynb. This version provides detailed explanations of each step and includes code snippets to provide a comprehensive understanding of the finetuning process.
 
+*. we use a forked version of huggingface transformers, it can be found [here](https://github.com/rahulunair/transformers_xpu).
 By going through this literate version, I hope that you can gain insights into the workings of LORΛ, how it interacts with the training process, and how you can utilize Intel GPUs for efficient finetuning. This is especially beneficial for practitioners new to language model finetuning, or those looking to gain a deeper understanding of the process.
 
 Happy Finetuning!
