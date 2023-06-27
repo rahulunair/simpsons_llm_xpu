@@ -2,6 +2,8 @@
 
 Welcome to the 'Simpson's LLM XPU' repository where we finetune a Language Model (LLM) on Intel discrete GPUs to generate dialogues based on the 'Simpsons' dataset.
 
+<img src=https://github.com/rahulunair/simpsons_llm_xpu/assets/786476/9b4f49a2-ead8-4d7b-b79f-d8b98cd75eeb width="30%">
+
 The implementation leverages the exceptional work done by Replicate. We've adopted their methods to make it compatible with Intel dGPUs. In case the [Replicate link](https://replicate.com/blog/fine-tune-llama-to-speak-like-homer-simpson) is unavailable, please refer to our forked repository for guidelines on preparing the dataset. The preparation steps are laid out simply in a Jupyter notebook.
 
 ### Getting Started
