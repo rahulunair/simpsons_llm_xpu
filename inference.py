@@ -1,3 +1,6 @@
+import os
+os.environ["IPEX_TILE_AS_DEVICE"] = "0"
+
 import gc
 import time
 import warnings
