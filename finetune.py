@@ -4,6 +4,7 @@ import os
 import sys
 import warnings
 
+os.environ["IPEX_TILE_AS_DEVICE"] = "0"
 warnings.filterwarnings(
     "ignore", category=UserWarning, module="intel_extension_for_pytorch"
 )
