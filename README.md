@@ -33,7 +33,7 @@ source $oneccl_path/env/setvars.sh
 Then, execute the following command to initiate the finetuning process across multiple XPUs:
 
 ```bash
-mpirun -n 2 python finetune.py
+mpirun -n 4 python finetune.py    # uses 4 intel dGPUs
 ```
 
 ### Post Finetuning:
