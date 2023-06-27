@@ -19,7 +19,9 @@ python finetune.py
 ````
 
 
-#### For a Multi-XPU Configuration (Multiple dGPUs):
+#### For a Multi-XPU Configuration (Multiple dGPUs) using oneCCL:
+
+Regarding oneCCL, Intel oneAPI Collective Communications Library (oneCCL) is a library that provides routines needed for communication between devices in distributed systems. These routines are built with a focus on performance and provide efficient inter-node and intra-node communication, making them suitable for multi-node, multi-core CPUs, and accelerators. We use PyTorch bindings for oneCCL (`torch_ccl`) to do distributed training. We can install `torch_ccl` by using prebuilt weels from [here](https://github.com/intel/torch-ccl#install-prebuilt-wheel).
 
 As we are using HuggingFace Trainer* object, we don't have to change the code in anyway, but execute the code using `mpi`.
 
@@ -30,12 +32,26 @@ oneccl_path=$(python -c "from oneccl_bindings_for_pytorch import cwd; print(cwd)
 source $oneccl_path/env/setvars.sh
 ```
 
+Then set these environment variables for MPI:
+
+```bash
+export MASTER_ADDR=127.0.0.1
+export CCL_ZE_IPC_EXCHANGE=sockets
+export FI_PROVIDER=sockets
+```
+
 Then, execute the following command to initiate the finetuning process across multiple XPUs:
 
 ```bash
 mpirun -n 4 python finetune.py    # uses 4 Intel Data Center GPU Max 1550
 ```
 ![image](https://github.com/rahulunair/simpsons_llm_xpu/assets/786476/93574ca5-3077-4807-99ce-724afd481885)
+
+To debug oneccl backend, use this env variable:
+
+```bash
+export CCL_LOG_LEVEL=debug
+```
 
 ### Post Finetuning:
 
