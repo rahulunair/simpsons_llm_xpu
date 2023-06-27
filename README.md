@@ -17,7 +17,7 @@ To utilize this code, start by preparing the dataset as suggested in the Replica
 ```bash
 python finetune.py
 ````
-![image](https://github.com/rahulunair/simpsons_llm_xpu/assets/786476/93574ca5-3077-4807-99ce-724afd481885)
+
 
 #### For a Multi-XPU Configuration (Multiple dGPUs):
 
@@ -35,6 +35,7 @@ Then, execute the following command to initiate the finetuning process across mu
 ```bash
 mpirun -n 4 python finetune.py    # uses 4 intel dGPUs
 ```
+![image](https://github.com/rahulunair/simpsons_llm_xpu/assets/786476/93574ca5-3077-4807-99ce-724afd481885)
 
 ### Post Finetuning:
 
