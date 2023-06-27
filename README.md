@@ -21,6 +21,8 @@ python finetune.py
 
 #### For a Multi-XPU Configuration (Multiple dGPUs):
 
+As we are using HuggingFace Trainer object, we don't have to change the code in anyway, but execute the code using `mpi`.
+
 First, set up the oneCCL environment variables by executing:
 
 ```bash
