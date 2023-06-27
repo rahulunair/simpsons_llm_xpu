@@ -2,7 +2,14 @@
 import json
 import os
 import sys
+import warnings
 
+warnings.filterwarnings(
+    "ignore", category=UserWarning, module="intel_extension_for_pytorch"
+)
+warnings.filterwarnings(
+    "ignore", category=UserWarning, module="torchvision.io.image", lineno=13
+)
 from typing import List
 
 import fire
