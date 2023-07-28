@@ -18,6 +18,15 @@ python finetune_no_trainer.py
 
 ### Finetuning with Trainer API of Transformers
 
+**Note** - For this, you will have to clone a patched version for Transformers from this [repo](https://github.com/rahulunair/transformers_xpu) and install it manually using 
+
+```bash
+git clone https://github.com/rahulunair/transformers_xpu
+cd transformers_xpu
+git checkout hf_trainer
+python setup.py install
+```
+
 
 #### For a Single XPU Device:
 
