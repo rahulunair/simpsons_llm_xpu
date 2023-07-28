@@ -23,8 +23,9 @@ python finetune_no_trainer.py
 ```bash
 git clone https://github.com/rahulunair/transformers_xpu
 cd transformers_xpu
-git checkout xpu_train
+git checkout xpu_trainer
 python setup.py install
+cd .. && rm -rf transformers_xpu
 ```
 
 
