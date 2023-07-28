@@ -10,7 +10,14 @@ The implementation leverages the original idea and exceptional work done by Repl
 
 To utilize this code, start by preparing the dataset as suggested in the Replicate blog.
 
-### Finetuning
+### Finetuning using standard PyTorch Training loop
+
+```bash
+python finetune_no_trainer.py
+```
+
+### Finetuning with Trainer API of Transformers
+
 
 #### For a Single XPU Device:
 
