@@ -48,7 +48,10 @@ OUTPUT_DIR = "experiments"
 CUTOFF_LEN = 256
 # BASE_MODEL = "openlm-research/open_llama_3b"
 # BASE_MODEL = "Writer/camel-5b-hf"
-BASE_MODEL = "togethercomputer/RedPajama-INCITE-Instruct-3B-v1"
+# BASE_MODEL = "togethercomputer/RedPajama-INCITE-Instruct-3B-v1"
+BASE_MODEL = "decapoda-research/llama-7b-hf"
+# BASE_MODEL = "tiiuae/falcon-7b-instruct"
+
 EPOCHS = 10  # Please set the number of epochs you want to train for
 device = torch.device("xpu") if torch.xpu.is_available() else torch.device("cpu")
 generate_while_training = False
@@ -68,15 +71,45 @@ wandb.init(
 )
 
 print(f"Using model: {BASE_MODEL}")
-if BASE_MODEL.startswith("openlm"):
-    model = LlamaForCausalLM.from_pretrained(BASE_MODEL)
+
+def find_latest_checkpoint(output_dir):
+    all_subdirs = [
+        os.path.join(output_dir, d)
+        for d in os.listdir(output_dir)
+        if os.path.isdir(os.path.join(output_dir, d))
+    ]
+    if not all_subdirs:
+        return None
+    return max(all_subdirs, key=os.path.getmtime)
+
+
+latest_checkpoint = find_latest_checkpoint(OUTPUT_DIR)
+use_checkpoint_if_available = True
+
+if "llama" in BASE_MODEL:
     tokenizer = LlamaTokenizer.from_pretrained(BASE_MODEL)
-    print("using llama tokenizer and model class...")
 else:
-    model = AutoModelForCausalLM.from_pretrained(
-        BASE_MODEL
-    )  # , torch_dtype=torch.bfloat16)
     tokenizer = AutoTokenizer.from_pretrained(BASE_MODEL)
+
+
+if latest_checkpoint is not None and use_checkpoint_if_available:
+    print(f"Loading model from checkpoint: {latest_checkpoint}")
+    if "llama" in BASE_MODEL:
+        model = LlamaForCausalLM.from_pretrained(latest_checkpoint)
+    else:
+        model = AutoModelForCausalLM.from_pretrained(latest_checkpoint)
+    optimizer.load_state_dict(
+        torch.load(os.path.join(latest_checkpoint, "optimizer.pt"))
+    )
+    lr_scheduler.load_state_dict(
+        torch.load(os.path.join(latest_checkpoint, "scheduler.pt"))
+    )
+else:
+    if "llama" in BASE_MODEL:
+        model = LlamaForCausalLM.from_pretrained(BASE_MODEL)
+    else:
+        model = AutoModelForCausalLM.from_pretrained(BASE_MODEL)
+
 
 tokenizer.pad_token_id = 0
 tokenizer.padding_side = "left"
@@ -189,6 +222,7 @@ else:
     train_data.save_to_disk("./train_data.tkn")
     val_data.save_to_disk("./val_data.tkn")
 
+
 # Initialize the DataLoader for training and validation datasets
 train_dataloader = DataLoader(
     train_data, batch_size=MICRO_BATCH_SIZE, collate_fn=collate_fn
@@ -197,10 +231,6 @@ val_dataloader = DataLoader(
     val_data, batch_size=MICRO_BATCH_SIZE, collate_fn=collate_fn
 )
 
-# Choose a loss function
-loss_fn = nn.CrossEntropyLoss(
-    ignore_index=tokenizer.pad_token_id
-)  # Ignore padding token for loss computation
 
 # Choose an optimizer
 optimizer = optim.AdamW(model.parameters(), lr=LEARNING_RATE)
@@ -237,13 +267,13 @@ for epoch in range(EPOCHS):
         if hasattr(ipex, "optimize_transformers"):
             # Use the llm_optimize function
             model, optimizer = ipex.optimize_transformers(
-                model=model, optimizer=optimizer, dtype=torch.bfloat16
+                model=model, optimizer=optimizer, dtype=dtype
             )
             print("llm optimize done...")
         else:
             # Fall back to the regular optimize function
             model, optimizer = ipex.optimize(
-                model=model, optimizer=optimizer, dtype=torch.bfloat16
+                model=model, optimizer=optimizer, dtype=dtype
             )
             print("ipex optimize done (commented out, getting nans...")
 
@@ -254,7 +284,7 @@ for epoch in range(EPOCHS):
         labels = batch["labels"].to(device)
 
         optimizer.zero_grad()  # Reset gradients
-        with torch.xpu.amp.autocast(enabled=True, dtype=torch.bfloat16):
+        with torch.xpu.amp.autocast(enabled=True, dtype=dtype):
             outputs = model(
                 input_ids=input_ids, attention_mask=attention_mask, labels=labels
             )
@@ -288,6 +318,13 @@ for epoch in range(EPOCHS):
     print(f"Average training loss: {avg_train_loss}")
     print(f"Training Perplexity: {train_perplexity}")
 
+    # Checkpointing model
+    checkpoint_path = f"{OUTPUT_DIR}/checkpoint_{epoch}"
+    os.makedirs(checkpoint_path, exist_ok=True)
+    model.save_pretrained(checkpoint_path)
+    torch.save(optimizer.state_dict(), os.path.join(checkpoint_path, "optimizer.pt"))
+    torch.save(lr_scheduler.state_dict(), os.path.join(checkpoint_path, "scheduler.pt"))
+    
     # Validation
     model.eval()
     total_val_loss = 0.0
@@ -297,7 +334,7 @@ for epoch in range(EPOCHS):
             attention_mask = batch["attention_mask"].to(device)
             labels = batch["labels"].to(device)
 
-            with torch.xpu.amp.autocast(enabled=True, dtype=torch.bfloat16):
+            with torch.xpu.amp.autocast(enabled=True, dtype=dtype):
                 outputs = model(
                     input_ids=input_ids, attention_mask=attention_mask, labels=labels
                 )
@@ -331,6 +368,6 @@ for epoch in range(EPOCHS):
 
 # Save the model
 model.save_pretrained(OUTPUT_DIR)
-model_artifact = wandb.Artifact("simpsons_{BASE_MODEL}", type="model")
-model_artifact.add_file("OUTPUT_DIR")
-wandb.log_artifact(model_artifact)
+#model_artifact = wandb.Artifact("simpsons_{BASE_MODEL}", type="model")
+#model_artifact.add_file("OUTPUT_DIR")
+#wandb.log_artifact(model_artifact)
