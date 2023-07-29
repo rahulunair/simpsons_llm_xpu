@@ -32,11 +32,8 @@ from torch.utils.data import DataLoader
 from torch.nn.utils.rnn import pad_sequence
 from tqdm import tqdm
 from transformers.optimization import get_linear_schedule_with_warmup
-try:
-  from peft import LoraConfig, get_peft_model
-except ImportError:
-  print("Installing peft library without bitsandbytes and no deps using: pip install peft --no-deps")
-  sys.exit()
+from peft import LoraConfig, get_peft_model
+
 
 if torch.xpu.is_available():
     print("Using '{}' as an xpu device.".format(torch.xpu.get_device_name()))
@@ -44,7 +41,7 @@ if torch.xpu.is_available():
 
 # hyper params and config.
 BATCH_SIZE = 128
-MICRO_BATCH_SIZE = 16
+MICRO_BATCH_SIZE = 32
 GRADIENT_ACCUMULATION_STEPS = BATCH_SIZE // MICRO_BATCH_SIZE
 LEARNING_RATE = 3e-4
 TRAIN_STEPS = 100
@@ -99,7 +96,6 @@ config = LoraConfig(
 def print_trainable_parameters(model):
     """
     Prints the number of trainable parameters in the model.
-    src: https://github.com/huggingface/peft/blob/main/examples/fp4_finetuning/finetune_fp4_opt_bnb_peft.py
     """
     trainable_params = 0
     all_param = 0
@@ -118,6 +114,7 @@ def generate_text(model, prompt, max_length=100):
         prompt, add_special_tokens=False, return_tensors="pt"
     ).to(device)
 
+    model = model.to(device).to(torch.float32)
     # Generate text
     output_sequences = model.generate(
         input_ids=encoded_prompt,
@@ -136,7 +133,6 @@ def generate_text(model, prompt, max_length=100):
 
     generated_sequence = output_sequences[0].tolist()
     text = tokenizer.decode(generated_sequence, clean_up_tokenization_spaces=True)
-
     return text
 
 
@@ -289,8 +285,6 @@ for epoch in range(EPOCHS):
                 model=model, optimizer=optimizer, dtype=torch.bfloat16
             )
             print("ipex optimize done (commented out, getting nans...")
-    print(f"Inside training loop, num params:")
-    print_trainable_parameters(model)
     total_loss = 0.0
     for step, batch in enumerate(tqdm(train_dataloader, desc="Training")):
         input_ids = batch["input_ids"].to(device)
@@ -379,5 +373,6 @@ for epoch in range(EPOCHS):
 
 # Save the model
 model.save_pretrained(OUTPUT_DIR)
-model_artifact = wandb.Artifact("simpsons_{BASE_MODEL}", type="model")
-model_artifact.add_file("OUTPUT_DIR")
+# model_artifact = wandb.Artifact(f"simpsons_model", type="model")
+# model_artifact.add_file(OUTPUT_DIR)
+# wandb.log_artifact(model_artifact)
