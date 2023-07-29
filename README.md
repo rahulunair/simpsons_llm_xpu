@@ -12,9 +12,18 @@ To utilize this code, start by preparing the dataset as suggested in the Replica
 
 ### Finetuning using standard PyTorch Training loop
 
+#### Full model finetuning
+
 ```bash
 python finetune_no_trainer.py
 ```
+
+#### Fine tuning with LoRA
+
+```bash
+python finetune_no_trainer_lora.py
+```
+
 
 ### Finetuning with Trainer API of Transformers
 
