@@ -6,6 +6,8 @@ Welcome to the 'Simpson's LLM XPU' repository where we finetune a Language Model
 
 The implementation leverages the original idea and exceptional work done by Replicate for the dataset prep. In case the [Replicate link](https://replicate.com/blog/fine-tune-llama-to-speak-like-homer-simpson) is unavailable, please refer to my forked [version](https://github.com/rahulunair/homerbot_errata) for guidelines on preparing the dataset. The preparation steps are laid out simply in a Jupyter notebook.
 
+After the data is generated, copy the data.json file to `utils` in the repo and run `python rename_data_keys.py` to get `isdata.json`, which is our dataset on which finetuning will be done.
+
 ### Getting Started
 
 To utilize this code, start by preparing the dataset as suggested in the Replicate blog.
